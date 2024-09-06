@@ -17,6 +17,7 @@ function shuffle(array){
 }
 
 function startGame(){
+    console.log("Starting")
     startButton.classList.add("hide")
 
     shuffledQuestions = shuffle(questions)
