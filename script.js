@@ -3,10 +3,15 @@ const nextButton = document.getElementById("next-btn")
 const questionContainer = document.getElementById("question-container")
 const questionElement = document.getElementById("question")
 const answerButtons = document.getElementById("answer-buttons")
+const resultsContainer = document.getElementById("results-container")
+const scoreText = document.getElementById("score")
+
 
 let shuffledQuestions, currentQuestionIndex
 
-startButton.addEventListener("click", startGame)
+let score = 0
+
+startButton.addEventListener("click", startExam)
 nextButton.addEventListener("click", () => {
     currentQuestionIndex++
     setNextQuestion()
@@ -16,7 +21,12 @@ function shuffle(array){
     return array.sort(() => Math.random() - 0.5)
 }
 
-function startGame(){
+function ResetStats(){
+    score = 0
+}
+
+function startExam(){
+    ResetStats()
     console.log("Starting")
     startButton.classList.add("hide")
 
@@ -24,8 +34,19 @@ function startGame(){
     currentQuestionIndex = 0
 
     questionContainer.classList.remove("hide")
+    resultsContainer.classList.add("hide")
 
     setNextQuestion()
+}
+
+function FinishExam(){
+    startButton.removeEventListener("click", FinishExam)
+    startButton.addEventListener("click", startExam)
+
+    questionContainer.classList.add("hide")
+    resultsContainer.classList.remove("hide")
+
+    scoreText.innerText = `${score}/${GetTotalMarks(questions)} ${Math.round(score / GetTotalMarks(questions) * 1000)/10}%`
 }
 
 function resetState(){
@@ -61,15 +82,21 @@ function showQuestion(question){
 function selectAnswer(e){
     let btn = e.target
     let correct = btn.dataset.correct
+
+    if (correct) {score++}
+
     setStatusClass(document.body, correct)
     Array.from(answerButtons.children).forEach(button => {
         setStatusClass(button, button.dataset.correct)
     })
+
     if (shuffledQuestions.length > currentQuestionIndex + 1) {
         nextButton.classList.remove("hide")
     } else {
-        startButton.innerText = "Restart"
+        startButton.innerText = "Finish"
         startButton.classList.remove("hide")
+        startButton.removeEventListener("click", startExam)
+        startButton.addEventListener("click", FinishExam)
     }
 }
 
@@ -88,6 +115,9 @@ function clearStatusClass(element){
     element.classList.remove("wrong")
 }
 
+function GetTotalMarks(questions){
+    return questions.length
+}
 
 function Question(question, answers, correctIndices){
     this.question = question
