@@ -1,3 +1,5 @@
+const qDatabase = fetch("questions.json").then((response) => response.json()).then((json) => console.log(json["MCQ"][0]))
+
 const startButton = document.getElementById("start-btn")
 const nextButton = document.getElementById("next-btn")
 const questionContainer = document.getElementById("question-container")
@@ -65,13 +67,13 @@ function setNextQuestion(){
 function showQuestion(question){
     questionElement.innerText = question.question
 
-    shuffle(question.answers).forEach(answer => {
+    shuffle(question.options).forEach(option => {
         const button = document.createElement("button")
-        button.innerText = answer.text
+        button.innerText = option.text
         button.classList.add("btn")
 
-        if (answer.correct) {
-            button.dataset.correct = answer.correct
+        if (option.correct) {
+            button.dataset.correct = option.correct
         }
 
         button.addEventListener("click", selectAnswer)
@@ -119,21 +121,29 @@ function GetTotalMarks(questions){
     return questions.length
 }
 
-function Question(question, answers, correctIndices){
+function Question(question, options, correctIndices){
     this.question = question
-    this.answers = []
+    this.options = []
 
     if (typeof(correctIndices) == "number") { 
         correctIndices = [correctIndices]
     }
 
-    for (let i = 0; i < answers.length; i++){
-        this.answers[i] = {text: answers[i], correct: correctIndices.includes(i)}
+    for (let i = 0; i < options.length; i++){
+        this.options[i] = {text: options[i], correct: correctIndices.includes(i)}
     }
 }
 
-const questions = [
-    new Question("What is the square root of 4?", [-1, -2, 2, 3], [1,2]),
-    new Question("What is 3x3", [4, 9, 12, 16], 1),
-    new Question("what is 4x12", [48, 32, 12], 0)
-]
+function CreateMCQQuestion(jsonQuestion){
+    let questionText = jsonQuestion["question"]
+    let options = jsonQuestion["options"]
+    let answers = []
+    for (i = 0; i < options.length; i++){
+        if (options[i] == jsonQuestion["answer"]) {answers.add(i)}
+    }
+
+    return new Question(questionText, options, answers)
+}
+
+const questions = []
+qDatabase.then()
